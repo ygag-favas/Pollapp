@@ -10,6 +10,6 @@ class PollList(generics.ListCreateAPIView):
     serializer_class = PollSerializer
 
 
-class CommentList(generics.ListAPIView):
+class CommentList(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
