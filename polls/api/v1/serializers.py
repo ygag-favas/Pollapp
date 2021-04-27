@@ -1,9 +1,8 @@
 from rest_framework import serializers
-from polls.models import Question, Choice
+from polls.models import Question, Choice, Comment
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Choice
         fields = ('choice_text', 'votes')
@@ -29,3 +28,12 @@ class PollSerializer(serializers.ModelSerializer):
         for choice in choices:
             Choice.objects.create(**choice, question=question)
         return question
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    question_text = serializers.CharField(read_only=True,
+                                          source='question.question_text')
+
+    class Meta:
+        model = Comment
+        fields = ['question_text', 'email', 'content']
