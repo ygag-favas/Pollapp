@@ -1,0 +1,16 @@
+<h1>Signin</h1>
+       {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{% if message.tags %}"{{ message.tags }}"{% endif %}:{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+<form action="{% url 'users:signin' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+  <button type="submit" id="submit">Login</button> | <a href="{% url 'users:password_reset' %}">Forgot Password</a>
+    <input type="hidden" name="next" value="{% url next %}" />
+    <p>Register Here...<a href="{% url 'users:signup' %}">Signup</a>
+</form>
