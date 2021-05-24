@@ -1,9 +1,17 @@
-
 from django.contrib import admin
 from django.forms import BaseInlineFormSet, forms
+from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
 
 from .forms import VerifyTagAdmin
 from .models import Choice, Question, Comment, Tag
+
+
+class QuestionAdmin(TranslationAdmin):
+    model = Question
+
+
+class ChoiceInline(TranslationTabularInline):
+    model = Choice
 
 
 class ChoiceFormSet(BaseInlineFormSet):
@@ -50,7 +58,9 @@ class CommentInline(admin.TabularInline):
 class QuestionAdmin(admin.ModelAdmin):
     fieldset = [
         (None, {'fields': ['question_text']}),
-        ('Date information', {'fields':['pub_date'], 'classes':['collapse']}),
+        (
+            'Date information',
+            {'fields': ['pub_date'], 'classes': ['collapse']}),
         ('created by', {'fields': ['user']}),
         ('Expiry date', {'fields': ['expiry_date']}),
         ('Order no', {'fields': ['order_no']})
@@ -72,4 +82,3 @@ class QuestionAdmin(admin.ModelAdmin):
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Comment)
 admin.site.register(Tag, TagAdmin)
-

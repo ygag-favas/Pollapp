@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,12 +25,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-
 # Application definition
 
 INSTALLED_APPS = [
-    'polls.apps.PollsConfig',
-    'users.apps.UsersConfig',
+    'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'graphene_django',
+    'rosetta',
+    'polls.apps.PollsConfig',
+    'users.apps.UsersConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -50,6 +51,8 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'solid_i18n.middleware.SolidLocaleMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -125,7 +128,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+
+LANGUAGE_CODE = 'en'
+# LANGUAGE_CODE = 'ar'
+
+LANGUAGE_COOKIE_NAME = 'django_language'
 
 TIME_ZONE = 'UTC'
 
@@ -134,6 +141,17 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
+from django.utils.translation import gettext
+
+gettext = lambda s: s
+LANGUAGES = (
+    ('en', gettext('English')),
+    ('ar', gettext('Arabic')),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -155,6 +173,14 @@ EMAIL_USE_TLS = False
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends'
                            '.AllowAllUsersModelBackend']
 
+CELERY_BROKER_URL = 'redis://127.0.0.1: 6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1: 6379'
+
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+
+FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
+                        "django_excel.TemporaryExcelFileUploadHandler")
+
 # LOGIN_URL = '/accounts/login/'
 # LOGIN_REDIRECT_URL = 'polls:index'
-
