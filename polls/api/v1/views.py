@@ -1,9 +1,15 @@
 from rest_framework import generics
-from .serializers import PollSerializer
+from .serializers import PollSerializer, CommentSerializer
 
 from polls.models import Question
+from ...models import Comment
 
 
 class PollList(generics.ListCreateAPIView):
     queryset = Question.objects.all()
     serializer_class = PollSerializer
+
+
+class CommentList(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
