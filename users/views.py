@@ -1,16 +1,12 @@
-import json
-from json import JSONEncoder
 
 from django.contrib import messages
 from django.contrib.auth import logout, get_user_model
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils.encoding import force_text, force_bytes

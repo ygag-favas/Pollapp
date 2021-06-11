@@ -109,19 +109,6 @@ class VoteView(generic.ListView):
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
-
-# def upload(request):
-#     if request.method == "POST":
-#         form = UploadFileForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             filehandle = request.FILES['file']
-#             # messages.success(self.request, 'Your password has been changed.')
-#             return HttpResponseRedirect(reverse('polls:index', args=(excel.make_response(filehandle.get_sheet(), "csv"))))
-#     else:
-#         form = UploadFileForm()
-#     return render(request, 'polls/upload_form.html', {'form': form})
-
-
 def import_data(request):
     if request.method == "POST":
         form = UploadFileForm(request.POST, request.FILES)
