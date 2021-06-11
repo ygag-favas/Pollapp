@@ -14,13 +14,32 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.conf.urls.i18n import i18n_patterns
+from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+#from polls.views import change_language
+
+from polls import views
 
 urlpatterns = [
-    path('', include('polls.urls')),
-    path('admin/', admin.site.urls),
-    path('account/', include('users.urls')),
-    # path('polls/api/', include('polls.api.urls')),
-
+    path('change_language/',    views.LanguageView.as_view(),
+         name='change_language')
+    #path('i18n/', include('django.conf.urls.i18n')),
 ]
+    # path('account/', include('users.urls')),
+    # path('', include('polls.urls')),
+    # path('admin/', admin.site.urls),
+    # path('account/', include('users.urls')),
 
+urlpatterns += i18n_patterns(
+    path('', include('polls.urls')),
+    path('account/', include('users.urls')),
+    path(_('admin/'), admin.site.urls),
+    prefix_default_language=False,
+)
+
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        re_path('rosetta/', include('rosetta.urls'))
+    ]

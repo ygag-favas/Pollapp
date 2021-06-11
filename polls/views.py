@@ -1,10 +1,18 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
+from django.forms import forms
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, \
+    HttpResponseBadRequest
+from django.template import RequestContext
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views import generic
 from django.db.models import F
 from django.db.models import Sum
+from mysite import settings
+from pyexcel.plugins.parsers import excel
+from django.shortcuts import render_to_response
 from .models import Choice, Question, Comment
 from .forms import CommentForm
 from django.contrib.auth import get_user_model
@@ -16,12 +24,15 @@ class IndexView(generic.ListView):
     template_name = 'polls/index.html'
 
     def get(self, request):
+        title = _('HomePage')
         """Returns latest question list by given order"""
-        p = Question.objects.order_by('order_no')[:5]
+        p = (Question.objects.order_by('order_no')[:5])
         """Returns most popular poll by number of votes"""
-        q = Question.objects.annotate(num_votes=Sum('choice__votes')).filter(
-            num_votes__isnull=False).order_by('-num_votes')[0]
-        return render(request, 'polls/index.html', {'p': p, 'q': q})
+        q = (Question.objects.annotate(num_votes=Sum('choice__votes')).filter(
+            num_votes__isnull=False).order_by('-num_votes')[0])
+
+        return render(request, 'polls/index.html', {'title': title, 'p': p,
+                                                    'q': q, })
 
 
 class DetailView(LoginRequiredMixin, generic.DetailView):
@@ -94,3 +105,60 @@ class VoteView(generic.ListView):
             return HttpResponseRedirect(reverse('polls:results',
                                                 args=(question_id,)))
 
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField()
+
+
+# def upload(request):
+#     if request.method == "POST":
+#         form = UploadFileForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             filehandle = request.FILES['file']
+#             # messages.success(self.request, 'Your password has been changed.')
+#             return HttpResponseRedirect(reverse('polls:index', args=(excel.make_response(filehandle.get_sheet(), "csv"))))
+#     else:
+#         form = UploadFileForm()
+#     return render(request, 'polls/upload_form.html', {'form': form})
+
+
+def import_data(request):
+    if request.method == "POST":
+        form = UploadFileForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            request.FILES['file'].save_book_to_database(
+                models=[Question],
+                initializers=[None],
+                mapdicts=[
+                    ["question_text", "pub_date", "user_id"]
+                ],
+            )
+            return HttpResponse("OK", status=200)
+        else:
+            return HttpResponseBadRequest()
+    else:
+        form = UploadFileForm
+    return render(request, 'polls/upload_form.html', {'form': form})
+
+
+class LanguageView(IndexView):
+    def post(self, request):
+        response = HttpResponseRedirect('/')
+        if request.method == 'POST':
+            language = request.POST.get('language')
+            if language:
+                if language != settings.LANGUAGE_CODE and [lang for lang in
+                                                           settings.LANGUAGES
+                                                           if lang[
+                                                                  0] == language]:
+                    redirect_path = f'/{language}/'
+                elif language == settings.LANGUAGE_CODE:
+                    redirect_path = '/'
+                else:
+                    return response
+                from django.utils import translation
+                translation.activate(language)
+                response = HttpResponseRedirect(redirect_path)
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+        return response
