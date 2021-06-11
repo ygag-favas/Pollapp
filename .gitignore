@@ -1,0 +1,7 @@
+*.pyc
+.DS_Store
+.idea
+logs/
+resources/
+/app_static/CACHE/
+dump.rdb
